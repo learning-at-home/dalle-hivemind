@@ -3,7 +3,6 @@
 import os
 from pathlib import Path
 
-
 import transformers
 from transformers import HfArgumentParser
 from hivemind.utils.logging import get_logger, use_hivemind_log_handler
@@ -16,8 +15,10 @@ from arguments import TrainingPeerArguments, HFTrainerArguments, CollaborativeAr
 from task import TrainingTask
 
 
+transformers.utils.logging.disable_default_handler()
+transformers.utils.logging.enable_propagation()
 use_hivemind_log_handler("in_root_logger")
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 def main():
@@ -25,8 +26,8 @@ def main():
     training_peer_args, trainer_args, collab_args = parser.parse_args_into_dataclasses()
 
     logger.info(f"Trying {len(training_peer_args.initial_peers)} initial peers: {training_peer_args.initial_peers}")
-    if len(training_peer_args.initial_peers) == 0:
-        logger.warning("Please specify at least one network endpoint in initial peers.")
+    # if len(training_peer_args.initial_peers) == 0:
+    #     logger.warning("Please specify at least one network endpoint in initial peers.")
 
     utils.setup_logging(trainer_args)
     task = TrainingTask(training_peer_args, trainer_args, collab_args)

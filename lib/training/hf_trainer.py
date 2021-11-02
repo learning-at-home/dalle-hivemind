@@ -1,14 +1,11 @@
 """A catch-all module for the dirty hacks required to make HF Trainer work with collaborative training"""
-from typing import Optional
-
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from transformers.trainer import Trainer
+from hivemind import CollaborativeOptimizer
+from hivemind.optim import HivemindGradScaler
 from hivemind.utils.logging import get_logger, use_hivemind_log_handler
-
-from lib.staging.collaborative import CollaborativeOptimizer
-from lib.staging.scaler import HivemindGradScaler
 
 use_hivemind_log_handler("in_root_logger")
 logger = get_logger()
@@ -74,7 +71,8 @@ class IgnoreGradManipulations(nn.Module):
         return self.module.forward(*args, **kwargs)
 
     def zero_grad(self, set_to_none: bool = False) -> None:
-        if self.override_zero_grad and all(param.grad.isfinite().all() for param in self.parameters()):
+        if self.override_zero_grad and \
+                all(param.grad.isfinite().all() for param in self.parameters() if param.requires_grad):
             logger.debug("Successfully bypassed zero_grad")
         else:
             self.module.zero_grad(set_to_none=set_to_none)

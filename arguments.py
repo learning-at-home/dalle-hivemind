@@ -12,15 +12,18 @@ class HFTrainerArguments(TrainingArguments):
     per_device_train_batch_size: int = 1
     per_device_eval_batch_size: int = 1
     gradient_accumulation_steps: int = 1
-    seq_length: int = 512
-    pad_to_multiple_of: int = 8
+    text_seq_length: int = 256
 
-    learning_rate: float = 0.0025
+    # DALLE-specific params
+    learning_rate: float = 0.003535
+    adam_beta1: float = 0.9
+    adam_beta2: float = 0.96
+    max_grad_norm: float = 4.0
+    weight_decay: float = 0.045
+
     total_steps: int = 31250  # total number of collaborative SGD updates, used for learning rate schedule
     warmup_steps: int = 3125
     adam_epsilon: float = 1e-6
-    weight_decay: float = 0.01
-    max_grad_norm: float = 1.0
     clamp_value: float = 10000.0
 
     fp16: bool = False
@@ -103,8 +106,7 @@ class CollaborativeArguments:
 class BasePeerArguments:
     """Base arguments that are used for both trainers and for auxiliary peers such as training monitor"""
     experiment_prefix: str = field(default="my-model", metadata={"help": "A unique experiment name, used as prefix for all DHT keys"})
-    model_config_path: Optional[str] = field(default="./model.json", metadata={"help": "Path to the model config"})
-    tokenizer_path: Optional[str] = field(default="./tokenizer", metadata={"help": "Path to the tokenizer"})
+    tokenizer_path: Optional[str] = field(default="gpt2", metadata={"help": "Path to the tokenizer"})
     cache_dir: Optional[str] = field(default="./cache", metadata={"help": "Path to the cache"})
 
     authorize: bool = field(default=False, metadata={"help": "Whether or not to use HF authorizer"})

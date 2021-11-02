@@ -4,6 +4,7 @@ import time
 
 import torch
 import wandb
+import transformers
 from transformers import HfArgumentParser
 from huggingface_hub import HfFolder, Repository
 from hivemind.utils.logging import get_logger, use_hivemind_log_handler
@@ -12,8 +13,11 @@ import utils
 from arguments import AuxiliaryPeerArguments, CollaborativeArguments, HFTrainerArguments
 from task import TrainingTask
 
+
+transformers.utils.logging.disable_default_handler()
+transformers.utils.logging.enable_propagation()
 use_hivemind_log_handler("in_root_logger")
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 class CheckpointHandler:
@@ -56,7 +60,7 @@ class CheckpointHandler:
 
     def upload_checkpoint(self, current_loss):
         logger.info("Saving model")
-        self.task.model.save_pretrained(self.local_path)
+        torch.save(self.task.model.state_dict(), f"{self.local_path}/model_state.pt")
         logger.info("Saving optimizer")
         torch.save(self.task.collaborative_optimizer.opt.state_dict(), f"{self.local_path}/optimizer_state.pt")
         self.previous_timestamp = time.time()
