@@ -73,7 +73,7 @@ class CollaborativeArguments:
         default=15.0, metadata={"help": "Averaging group will wait for stragglers for at most this many seconds"}
     )
     averaging_timeout: float = field(
-        default=120.0, metadata={"help": "Give up on averaging step after this many seconds"}
+        default=300, metadata={"help": "Give up on averaging step after this many seconds"}
     )
     min_refresh_period: float = field(
         default=0.5, metadata={"help": "Wait for at least this many seconds before fetching new collaboration state"}
@@ -100,6 +100,9 @@ class CollaborativeArguments:
         "help": "Whether or not to use model's .grad buffers for accumulating gradients across local steps. This "
                 "optimization reduces GPU memory consumption but may result in incorrect gradients when using some "
                 "advanced techniques (e.g. applying custom loss scaler)"})
+    request_timeout: float = field(
+        default=10, metadata={"help": "Timeout for averager requests (loading state, joining groups)"},
+    )
 
 
 @dataclass
