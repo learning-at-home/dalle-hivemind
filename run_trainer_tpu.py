@@ -3,7 +3,7 @@ import time
 
 import wandb
 import torch
-import transformers.training_args
+import transformers
 from hivemind.utils.logging import get_logger, use_hivemind_log_handler
 from transformers import HfArgumentParser
 
@@ -13,6 +13,8 @@ from lib.training.tpu import TPUManager
 from callback import CollaborativeCallback
 from task import TrainingTask
 
+
+transformers.utils.logging.set_verbosity_warning()
 use_hivemind_log_handler("in_root_logger")
 logger = get_logger()
 
@@ -27,7 +29,7 @@ def main():
     if len(peer_args.initial_peers) == 0:
         logger.warning("Please specify at least one network endpoint in initial peers.")
 
-    utils.setup_logging(trainer_args)
+    utils.log_process_rank(trainer_args)
     task = TrainingTask(peer_args, trainer_args, collab_args)
     model = task.model
 

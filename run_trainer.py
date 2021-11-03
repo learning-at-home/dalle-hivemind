@@ -15,8 +15,7 @@ from arguments import TrainingPeerArguments, HFTrainerArguments, CollaborativeAr
 from task import TrainingTask
 
 
-transformers.utils.logging.disable_default_handler()
-transformers.utils.logging.enable_propagation()
+transformers.utils.logging.set_verbosity_warning()
 use_hivemind_log_handler("in_root_logger")
 logger = get_logger(__name__)
 
@@ -29,7 +28,7 @@ def main():
     # if len(training_peer_args.initial_peers) == 0:
     #     logger.warning("Please specify at least one network endpoint in initial peers.")
 
-    utils.setup_logging(trainer_args)
+    utils.log_process_rank(trainer_args)
     task = TrainingTask(training_peer_args, trainer_args, collab_args)
     model = task.model.to(trainer_args.device)
 

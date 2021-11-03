@@ -14,8 +14,7 @@ from arguments import AuxiliaryPeerArguments, CollaborativeArguments, HFTrainerA
 from task import TrainingTask
 
 
-transformers.utils.logging.disable_default_handler()
-transformers.utils.logging.enable_propagation()
+transformers.utils.logging.set_verbosity_warning()
 use_hivemind_log_handler("in_root_logger")
 logger = get_logger(__name__)
 
