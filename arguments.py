@@ -109,7 +109,7 @@ class CollaborativeArguments:
 class BasePeerArguments:
     """Base arguments that are used for both trainers and for auxiliary peers such as training monitor"""
     experiment_prefix: str = field(default="my-model", metadata={"help": "A unique experiment name, used as prefix for all DHT keys"})
-    tokenizer_path: Optional[str] = field(default="gpt2", metadata={"help": "Path to the tokenizer"})
+    tokenizer_path: Optional[str] = field(default="t5-small", metadata={"help": "Path to the tokenizer"})
     cache_dir: Optional[str] = field(default="./cache", metadata={"help": "Path to the cache"})
 
     authorize: bool = field(default=False, metadata={"help": "Whether or not to use HF authorizer"})

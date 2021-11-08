@@ -22,7 +22,7 @@ def preprocess_batch(batch, tokenizer, max_sequence_length: int):
 
     if any(mask):
         result = tokenizer(list(itertools.compress(batch['caption'], mask)),
-                           truncation=True, max_length=max_sequence_length)
+                           add_special_tokens=False, max_length=max_sequence_length, truncation=True)
     else:
         # This branch is necessary because tokenizer([]) raises IndexError
         result = {'input_ids': [], 'attention_mask': []}
