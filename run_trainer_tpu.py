@@ -20,6 +20,8 @@ logger = get_logger()
 
 transformers.training_args.is_torch_tpu_available = lambda: False  # disable builtin TPU support to use custom code
 
+torch.set_num_threads(min(torch.get_num_threads(), 4))  # Otherwise, it becomes very slow on machines with ~100 CPUs
+
 
 def main():
     parser = HfArgumentParser((TrainingPeerArguments, TPUTrainerArguments, CollaborativeArguments))
