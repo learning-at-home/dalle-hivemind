@@ -1,4 +1,4 @@
-git+git://github.com/learning-at-home/hivemind
+git+git://github.com/learning-at-home/hivemind@ed42040
 git+git://github.com/learning-at-home/dalle-pytorch@weight-sharing
 transformers>=4.9.2
 tokenizers>=0.10.2
