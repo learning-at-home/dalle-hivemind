@@ -34,7 +34,7 @@ def preprocess_batch(batch, tokenizer, max_sequence_length: int):
 def make_dataset(
     tokenizer,
     *,
-    shuffle_buffer_size: int = 10 ** 4,
+    shuffle_buffer_size: int = 8192,
     shuffle_seed: Optional[int],
     preprocessing_batch_size: int = 256,
     max_sequence_length: int,
