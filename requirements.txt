@@ -1,5 +1,6 @@
-git+git://github.com/learning-at-home/hivemind@ed42040
+git+git://github.com/learning-at-home/hivemind@025e095
 git+git://github.com/learning-at-home/dalle-pytorch@weight-sharing
+bitsandbytes-cuda111>=0.26.0
 transformers>=4.9.2
 tokenizers>=0.10.2
 datasets>=1.11.0

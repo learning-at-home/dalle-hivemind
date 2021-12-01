@@ -64,45 +64,16 @@ class CollaborativeArguments:
         default=16384,
         metadata={"help": "Perform optimizer step after all peers collectively accumulate this many samples"},
     )
-    target_group_size: int = field(default=256, metadata={"help": "Maximum group size for all-reduce"})
-    bandwidth: float = field(
-        default=100.0,
-        metadata={"help": "Available network bandwidth, in mbps (used for load balancing in all-reduce)"},
-    )
-    averaging_expiration: float = field(
+    matchmaking_time: float = field(
         default=15.0, metadata={"help": "Averaging group will wait for stragglers for at most this many seconds"}
     )
     averaging_timeout: float = field(
-        default=300, metadata={"help": "Give up on averaging step after this many seconds"}
-    )
-    min_refresh_period: float = field(
-        default=0.5, metadata={"help": "Wait for at least this many seconds before fetching new collaboration state"}
-    )
-    max_refresh_period: float = field(
-        default=30, metadata={"help": "Wait for at most this many seconds before fetching new collaboration state"}
-    )
-    default_refresh_period: float = field(
-        default=3, metadata={"help": "Attempt to fetch collaboration state every this often until successful"}
-    )
-    expected_drift_peers: float = field(
-        default=3, metadata={"help": "Trainer assumes that this many new peers can join per step"}
-    )
-    expected_drift_rate: float = field(
-        default=0.2, metadata={"help": "Trainer assumes that this fraction of current size can join per step"}
-    )
-    performance_ema_alpha: float = field(
-        default=0.1, metadata={"help": "Uses this alpha for moving average estimate of samples per second"}
-    )
-    metadata_expiration: float = field(
-        default=120, metadata={"help": "Peer's metadata will be removed if not updated in this many seconds"}
+        default=120, metadata={"help": "Give up on averaging step after this many seconds"}
     )
     reuse_grad_buffers: bool = field(default=True, metadata={
         "help": "Whether or not to use model's .grad buffers for accumulating gradients across local steps. This "
                 "optimization reduces GPU memory consumption but may result in incorrect gradients when using some "
                 "advanced techniques (e.g. applying custom loss scaler)"})
-    request_timeout: float = field(
-        default=10, metadata={"help": "Timeout for averager requests (loading state, joining groups)"},
-    )
 
 
 @dataclass

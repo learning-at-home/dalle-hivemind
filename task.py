@@ -16,7 +16,7 @@ import utils
 from arguments import HFTrainerArguments, BasePeerArguments, CollaborativeArguments
 from data import make_dataset
 from huggingface_auth import authorize_with_huggingface
-from lib.training.clipped_lamb import LambWithGradientClipping
+from lib.training.lamb_8bit import CPULAMB8Bit
 
 
 logger = hivemind.get_logger(__name__)
@@ -115,20 +115,23 @@ class TrainingTask:
     @property
     def collaborative_optimizer(self):
         if self._collaborative_optimizer is None:
-            opt, scheduler = self._get_local_optimizer_and_scheduler(self.trainer_args)
+            params, opt, scheduler = self._get_local_optimizer_and_scheduler(self.trainer_args)
             averaging_compression = SizeAdaptiveCompression(
                 threshold=2 ** 16 + 1, less=Float16Compression(), greater_equal=Uniform8BitQuantization())
-            state_compression = hivemind.Float16Compression()
-            self._collaborative_optimizer = hivemind.CollaborativeOptimizer(
-                dht=self.dht, opt=opt, scheduler=scheduler, prefix=self.peer_args.experiment_prefix,
+            self._collaborative_optimizer = hivemind.Optimizer(
+                dht=self.dht, run_id=self.peer_args.experiment_prefix,
+                params=params, optimizer=opt, scheduler=scheduler,
+                offload_optimizer=True,
+                delay_grad_averaging=False, delay_optimizer_step=True,
                 batch_size_per_step=self.trainer_args.batch_size_per_step,
-                compression=averaging_compression, state_compression=state_compression,
-                client_mode=self.peer_args.client_mode, verbose=True, start=True, **asdict(self.collab_args))
+                grad_compression=averaging_compression, state_averaging_compression=averaging_compression,
+                client_mode=self.peer_args.client_mode, verbose=True,
+                **asdict(self.collab_args))
         return self._collaborative_optimizer
 
     def _get_local_optimizer_and_scheduler(self, training_args: HFTrainerArguments):
         no_decay = ["bias", "LayerNorm.weight"]
-        optimizer_grouped_parameters = [
+        params = [
             {
                 "params": [p for n, p in self.model.named_parameters()
                            if not any(nd in n for nd in no_decay) and p.requires_grad],
@@ -141,22 +144,22 @@ class TrainingTask:
             },
         ]
 
-        opt = LambWithGradientClipping(
-            optimizer_grouped_parameters,
+        opt = lambda params: CPULAMB8Bit(
+            params,
             lr=training_args.learning_rate,
             betas=(training_args.adam_beta1, training_args.adam_beta2),
             eps=training_args.adam_epsilon,
             weight_decay=training_args.weight_decay,
             max_grad_norm=training_args.max_grad_norm,
             clamp_value=training_args.clamp_value,
-            debias=True,
+            reuse_grad_buffers=True,
         )
 
-        scheduler = get_linear_schedule_with_warmup(
+        scheduler = lambda opt: get_linear_schedule_with_warmup(
             opt, num_warmup_steps=training_args.warmup_steps, num_training_steps=training_args.total_steps
         )
 
-        return opt, scheduler
+        return params, opt, scheduler
 
     @property
     def training_dataset(self):

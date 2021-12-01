@@ -61,17 +61,17 @@ class CheckpointHandler:
         logger.info("Saving model")
         torch.save(self.task.model.state_dict(), f"{self.local_path}/model_state.pt")
         logger.info("Saving optimizer")
-        torch.save(self.task.collaborative_optimizer.opt.state_dict(), f"{self.local_path}/optimizer_state.pt")
+        torch.save(self.task.collaborative_optimizer.state_dict(), f"{self.local_path}/optimizer_state.pt")
         self.previous_timestamp = time.time()
         logger.info("Started uploading to Model Hub")
-        self.repo.push_to_hub(commit_message=f"Step {self.task.collaborative_optimizer.local_step}, loss {current_loss:.3f}")
+        self.repo.push_to_hub(commit_message=f"Step {self.task.collaborative_optimizer.local_epoch}, loss {current_loss:.3f}")
         logger.info("Finished uploading to Model Hub")
 
 
 def assist_averaging_in_background(task: TrainingTask, peer_args: AuxiliaryPeerArguments):
     while True:
         time.sleep(peer_args.assist_refresh)
-        task.collaborative_optimizer.step_aux()
+        task.collaborative_optimizer.step()
 
 
 if __name__ == "__main__":
@@ -89,10 +89,11 @@ if __name__ == "__main__":
         checkpoint_handler = CheckpointHandler(task, peer_args)
 
     if peer_args.assist_in_averaging:
-        assert not peer_args.client_mode, "client-mode peers cannot assist in averaging"
-        averaging_thread = threading.Thread(
-            name="AveragingAuxThread", target=assist_averaging_in_background, args=[task, peer_args], daemon=True)
-        averaging_thread.start()
+        # assert not peer_args.client_mode, "client-mode peers cannot assist in averaging"
+        # averaging_thread = threading.Thread(
+        #     name="AveragingAuxThread", target=assist_averaging_in_background, args=[task, peer_args], daemon=True)
+        # averaging_thread.start()
+        raise NotImplementedError('aux peers with hivemind.optim.experimental are not supported yet')
 
     while True:
         metrics_entry = dht.get(peer_args.experiment_prefix + "_metrics", latest=True)

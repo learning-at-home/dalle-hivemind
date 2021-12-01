@@ -80,7 +80,7 @@ def main():
         loss, num_accumulated = tpu_manager.step()
         time_delta = time.perf_counter() - start_time
         logger.info(f"Accumulated {num_accumulated} gradients at {num_accumulated / time_delta:.3f} samples/second.")
-        wandb.log({"train/loss": loss, "train/learning_rate": collaborative_optimizer.scheduler.get_lr()[0]})
+        wandb.log({"train/loss": loss, "train/learning_rate": collaborative_optimizer.state_averager.scheduler.get_lr()[0]})
 
         with torch.no_grad():
             for param, grad_from_tpu in zip(model.parameters(), tpu_manager.get_aggregated_gradients()):
