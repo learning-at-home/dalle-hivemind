@@ -20,7 +20,7 @@ transformers.utils.logging.set_verbosity_warning()
 use_hivemind_log_handler("in_root_logger")
 logger = get_logger(__name__)
 
-torch.set_num_threads(min(torch.get_num_threads(), 4))  # Otherwise, it becomes very slow on machines with ~100 CPUs
+torch.set_num_threads(1)  # Otherwise, it becomes very slow on machines with ~100 CPUs
 
 
 def main():
