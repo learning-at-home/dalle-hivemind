@@ -15,7 +15,7 @@ LOCATION = "northeurope"
 ADMIN_PASS = os.environ['AZURE_PASS']
 
 SCALE_SETS = ('worker',)
-SWARM_SIZE = 16
+SWARM_SIZE = 64
 
 WORKER_CLOUD_INIT = """#cloud-config
 package_update: true
@@ -37,7 +37,7 @@ write_files:
       conda install python~=3.8.0 pip
       conda install pytorch cudatoolkit=11.1 -c pytorch -c nvidia
       conda clean --all
-      pip install https://github.com/learning-at-home/hivemind/archive/c328698b8668e6c548a571c175d045ac7df08586.zip
+      pip install https://github.com/learning-at-home/hivemind/archive/scaling_tweaks.zip
       systemctl enable testserv
       systemctl start testserv
   - path: /etc/systemd/system/testserv.service
@@ -63,15 +63,15 @@ write_files:
       cd /home/hivemind
       ulimit -n 8192
       
-      git clone https://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@github.com/learning-at-home/dalle-hivemind.git -b main
+      git clone https://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@github.com/learning-at-home/dalle-hivemind.git -b azure
       cd dalle-hivemind
       pip install -r requirements.txt
       pip install -U transformers==4.10.2 datasets==1.11.0
       
       WANDB_API_KEY=7cc938e45e63ef7d2f88f811be240ba0395c02dd python run_trainer.py --run_name $(hostname) \
          --experiment_prefix dalle_large_5groups \
-         --initial_peers /ip4/172.16.1.66/tcp/31334/p2p/QmZLrSPKAcP4puJ8gUGvQ155thk5Q6J7oE5exMUSq1oD5i \
-         --per_device_train_batch_size 4 --gradient_accumulation_steps 2 --fp16
+         --initial_peers /ip4/52.232.13.142/tcp/31334/p2p/QmZLrSPKAcP4puJ8gUGvQ155thk5Q6J7oE5exMUSq1oD5i \
+         --per_device_train_batch_size 1 --gradient_accumulation_steps 1
 runcmd:
   - bash /home/hivemind/init_worker.sh
 """
