@@ -64,13 +64,13 @@ class CollaborativeArguments:
         metadata={"help": "Perform optimizer step after all peers collectively accumulate this many samples"},
     )
     matchmaking_time: float = field(
-        default=30.0, metadata={"help": "Averaging group will wait for stragglers for at most this many seconds"}
+        default=15.0, metadata={"help": "Averaging group will wait for stragglers for at most this many seconds"}
     )
     allreduce_timeout: float = field(
-        default=60, metadata={"help": "Give up on a given all-reduce round after this many seconds"}
+        default=120, metadata={"help": "Give up on a given all-reduce round after this many seconds"}
     )
     averaging_timeout: float = field(
-        default=180, metadata={"help": "Give up on averaging step after this many seconds"}
+        default=120, metadata={"help": "Give up on averaging step after this many seconds"}
     )
     reuse_grad_buffers: bool = field(default=True, metadata={
         "help": "Whether or not to use model's .grad buffers for accumulating gradients across local steps. This "

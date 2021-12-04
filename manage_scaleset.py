@@ -7,15 +7,19 @@ from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 
+
+print("=======================WARNING=======================")
+print("= The code may fail to import 'gi' but that is okay =")
+print("===================END OF WARNING====================")
 SUBSCRIPTION_ID = os.environ["SUBSCRIPTION_ID"]
-GROUP_NAME = "dalle_northeu"
+GROUP_NAME = "dalle_west2"
 NETWORK_NAME = "vnet"
 SUBNET_NAME = "subnet"
-LOCATION = "northeurope"
+LOCATION = "westus2"
 ADMIN_PASS = os.environ['AZURE_PASS']
 
 SCALE_SETS = ('worker',)
-SWARM_SIZE = 64
+SWARM_SIZE = 4
 
 WORKER_CLOUD_INIT = """#cloud-config
 package_update: true
