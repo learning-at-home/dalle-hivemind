@@ -3,6 +3,7 @@ import os
 import time
 from datetime import datetime, timedelta
 from getpass import getpass
+from urllib.parse import urlencode, urlunsplit
 
 import requests
 from huggingface_hub import HfApi
@@ -44,12 +45,14 @@ class NotInAllowlistError(NonRetriableError):
 
 
 class HuggingFaceAuthorizer(TokenAuthorizerBase):
-    _AUTH_SERVER_URL = 'https://collaborative-training-auth.huggingface.co'
+    _AUTH_SERVER_SCHEME = 'https'
+    _AUTH_SERVER_NETLOC = 'collaborative-training-auth.huggingface.co'
 
-    def __init__(self, experiment_id: int, username: str, password: str):
+    def __init__(self, organization_name: str, model_name:str, username: str, password: str):
         super().__init__()
 
-        self.experiment_id = experiment_id
+        self.organization_name = organization_name
+        self.model_name = model_name
         self.username = username
         self.password = password
 
@@ -79,7 +82,10 @@ class HuggingFaceAuthorizer(TokenAuthorizerBase):
             raise
 
         try:
-            url = f'{self._AUTH_SERVER_URL}/api/experiments/join/{self.experiment_id}/'
+            path = f"/api/experiments/join"
+            query = urlencode(dict(format=format, token=token))
+            url = urlunsplit((self._AUTH_SERVER_SCHEME, self._AUTH_SERVER_NETLOC, path, query, ""))
+
             headers = {'Authorization': f'Bearer {token}'}
             response = requests.put(url, headers=headers, json={
                 'experiment_join_input': {
@@ -144,9 +150,13 @@ class HuggingFaceAuthorizer(TokenAuthorizerBase):
 
 def authorize_with_huggingface() -> HuggingFaceAuthorizer:
     while True:
-        experiment_id = os.getenv('HF_EXPERIMENT_ID')
-        if experiment_id is None:
-            experiment_id = input('HuggingFace experiment ID: ')
+        organization_name = os.getenv('HF_ORGANIZATION_NAME')
+        if organization_name is None:
+            organization_name = input('HuggingFace organization name: ')
+
+        model_name = os.getenv('HF_MODEL_NAME')
+        if model_name is None:
+            model_name = input('HuggingFace model name: ')
 
         username = os.getenv('HF_USERNAME')
         if username is None:
@@ -160,7 +170,7 @@ def authorize_with_huggingface() -> HuggingFaceAuthorizer:
         if password is None:
             password = getpass('HuggingFace password: ')
 
-        authorizer = HuggingFaceAuthorizer(experiment_id, username, password)
+        authorizer = HuggingFaceAuthorizer(organization_name, model_name, username, password)
         try:
             authorizer.join_experiment()
             return authorizer
