@@ -121,8 +121,7 @@ class TrainingTask:
             self._collaborative_optimizer = hivemind.Optimizer(
                 dht=self.dht, run_id=self.peer_args.experiment_prefix,
                 params=params, optimizer=opt, scheduler=scheduler,
-                offload_optimizer=True,
-                delay_grad_averaging=False, delay_optimizer_step=True,
+                offload_optimizer=True, delay_grad_averaging=False, delay_optimizer_step=True,
                 batch_size_per_step=self.trainer_args.batch_size_per_step,
                 grad_compression=averaging_compression, state_averaging_compression=averaging_compression,
                 client_mode=self.peer_args.client_mode, verbose=True,

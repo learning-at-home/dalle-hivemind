@@ -15,7 +15,7 @@ class HFTrainerArguments(TrainingArguments):
     text_seq_length: int = 256
 
     # DALLE-specific params
-    learning_rate: float = 0.003535
+    learning_rate: float = 0.0025
     adam_beta1: float = 0.9
     adam_beta2: float = 0.96
     max_grad_norm: float = 4.0
@@ -27,7 +27,6 @@ class HFTrainerArguments(TrainingArguments):
     clamp_value: float = 10000.0
 
     fp16: bool = False
-    fp16_opt_level: str = "O2"
     do_train: bool = True
 
     logging_steps: int = 100
@@ -61,14 +60,17 @@ class TPUTrainerArguments(HFTrainerArguments):
 class CollaborativeArguments:
     """Configuration for CollaborativeOptimzier and its internals"""
     target_batch_size: int = field(
-        default=16384,
+        default=4096,
         metadata={"help": "Perform optimizer step after all peers collectively accumulate this many samples"},
     )
     matchmaking_time: float = field(
         default=15.0, metadata={"help": "Averaging group will wait for stragglers for at most this many seconds"}
     )
+    allreduce_timeout: float = field(
+        default=60, metadata={"help": "Give up on a given all-reduce round after this many seconds"}
+    )
     averaging_timeout: float = field(
-        default=120, metadata={"help": "Give up on averaging step after this many seconds"}
+        default=180, metadata={"help": "Give up on averaging step after this many seconds"}
     )
     reuse_grad_buffers: bool = field(default=True, metadata={
         "help": "Whether or not to use model's .grad buffers for accumulating gradients across local steps. This "
