@@ -1,4 +1,4 @@
-git+git://github.com/learning-at-home/hivemind@025e095
+git+git://github.com/learning-at-home/hivemind@dalle-v1
 git+git://github.com/learning-at-home/dalle-pytorch@weight-sharing
 bitsandbytes-cuda111>=0.26.0
 transformers>=4.9.2
