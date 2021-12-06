@@ -45,10 +45,9 @@ class NotInAllowlistError(NonRetriableError):
 
 
 class HuggingFaceAuthorizer(TokenAuthorizerBase):
-    _AUTH_SERVER_SCHEME = 'https'
-    _AUTH_SERVER_NETLOC = 'collaborative-training-auth.huggingface.co'
+    _AUTH_SERVER_URL = 'https://collaborative-training-auth.huggingface.co'
 
-    def __init__(self, organization_name: str, model_name:str, username: str, password: str):
+    def __init__(self, organization_name: str, model_name: str, username: str, password: str):
         super().__init__()
 
         self.organization_name = organization_name
@@ -82,16 +81,22 @@ class HuggingFaceAuthorizer(TokenAuthorizerBase):
             raise
 
         try:
-            path = f"/api/experiments/join"
-            query = urlencode(dict(format=format, token=token))
-            url = urlunsplit((self._AUTH_SERVER_SCHEME, self._AUTH_SERVER_NETLOC, path, query, ""))
-
+            url = f'{self._AUTH_SERVER_URL}/api/experiments/join'
             headers = {'Authorization': f'Bearer {token}'}
-            response = requests.put(url, headers=headers, json={
-                'experiment_join_input': {
-                    'peer_public_key': self.local_public_key.to_bytes().decode(),
+            response = requests.put(
+                url,
+                headers=headers,
+                params={
+                    'organization_name': self.organization_name,
+                    'model_name': self.model_name,
                 },
-            })
+                json={
+                    'experiment_join_input': {
+                        'peer_public_key': self.local_public_key.to_bytes().decode(),
+                    },
+                },
+                verify=False,  # FIXME: Update the expired API certificate
+            )
 
             response.raise_for_status()
             response = response.json()
