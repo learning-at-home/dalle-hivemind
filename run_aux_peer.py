@@ -64,7 +64,7 @@ class CheckpointHandler:
         torch.save(self.task.collaborative_optimizer.state_dict(), f"{self.local_path}/optimizer_state.pt")
         self.previous_timestamp = time.time()
         logger.info("Started uploading to Model Hub")
-        self.repo.push_to_hub(commit_message=f"Step {self.task.collaborative_optimizer.local_epoch}, loss {current_loss:.3f}")
+        self.repo.push_to_hub(commit_message=f"Epoch {self.task.collaborative_optimizer.local_epoch}, loss {current_loss:.3f}")
         logger.info("Finished uploading to Model Hub")
 
 
@@ -122,7 +122,7 @@ if __name__ == "__main__":
                     num_samples += item.samples_accumulated
                     sum_mini_steps += item.mini_steps
                 current_loss = sum_loss / sum_mini_steps
-                logger.info(f"Step #{current_step}\tloss = {current_loss:.5f}")
+                logger.info(f"Epoch #{current_step}\tloss = {current_loss:.5f}")
 
                 if peer_args.wandb_project is not None:
                     wandb.log(

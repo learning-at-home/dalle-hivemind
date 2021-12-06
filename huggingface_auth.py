@@ -153,21 +153,17 @@ def authorize_with_huggingface() -> HuggingFaceAuthorizer:
 
         hf_user_access_token = os.getenv('HF_USER_ACCESS_TOKEN')
         if hf_user_access_token is None:
-            msg = [
-                "Copy a token from your Hugging Face tokens page at ",
-                colored("https://huggingface.co/settings/token", attrs=['bold']),
-                "and paste it.\n💡",
-                colored("Pro Tip:", attrs=['bold']),
-                "If you don't already have one, you can create a dedicated user access token. Go to "
-                "https://huggingface.co/settings/token and click on the `new token` button. ",
-                "You just need to give a ",
-                colored("'read'", attrs=['bold']),
-                "role to this access token." ,
-                "Don't forget to give an explicit name to this access token like",
-                colored(f"'{organization_name}-{model_name}-collaborative-training'", attrs=['bold'])
-                ]
-            print(*msg)
-            hf_user_access_token = getpass('HF user access token : ')
+            print(
+                "\nCopy a token from 🤗 Hugging Face settings page at "
+                f"{colored('https://huggingface.co/settings/token', attrs=['bold'])} "
+                "and paste it here.\n\n"
+                f"💡 {colored('Tip:', attrs=['bold'])} "
+                "If you don't already have one, you can create a dedicated user access token.\n"
+                f"Go to {colored('https://huggingface.co/settings/token', attrs=['bold'])}, "
+                f"click the {colored('New token', attrs=['bold'])} button, "
+                f"and choose the {colored('read', attrs=['bold'])} role.\n"
+            )
+            hf_user_access_token = getpass('🤗 Hugging Face user access token (characters will be hidden): ')
 
             authorizer = HuggingFaceAuthorizer(organization_name, model_name, hf_user_access_token)
 
@@ -175,23 +171,21 @@ def authorize_with_huggingface() -> HuggingFaceAuthorizer:
             authorizer.join_experiment()
 
             username = authorizer._local_access_token.username
-            print(f"🚀 You will contribute to the collaborative training under the username {username}.")
+            print(f"🚀 You will contribute to the collaborative training under the username {username}")
             return authorizer
         except InvalidCredentialsError:
             print('Invalid user access token, please try again')
         except NotInAllowlistError:
             print(
-                '😥 Authentication has failed. '
-                'This error may be due to the fact:\n',
-                "   1. your user access token is not valid. You can try to delete the previous token and"
-                " recreate one. Be careful, organization tokens can't be used to join a collaborative "
+                '\n😥 Authentication has failed.\n\n'
+                'This error may be due to the fact:\n'
+                "    1. Your user access token is not valid. You can try to delete the previous token and "
+                "recreate one. Be careful, organization tokens can't be used to join a collaborative "
                 "training.\n"
-                f"   2. you have not yet joined the {organization_name} organization. You can request to"
-                " join this organization by clicking on the 'request to join this org' button at "
-                f"https://huggingface.co/{organization_name}.\n",
-                f"   3. the {organization_name} organization doesn't exist at https://huggingface.co/{organization_name}.\n",
-                f"   4. no {organization_name}'s admin has created a collaborative training for the {organization_name}"
-                f"organization and the {model_name} model.",
-                )
-    
-
+                f"    2. You have not yet joined the {organization_name} organization. You can request to "
+                "join this organization by clicking on the 'request to join this org' button at "
+                f"https://huggingface.co/{organization_name}.\n"
+                f"    3. The {organization_name} organization doesn't exist at https://huggingface.co/{organization_name}.\n"
+                f"    4. No {organization_name}'s admin has created a collaborative training for the {organization_name} "
+                f"organization and the {model_name} model."
+            )
