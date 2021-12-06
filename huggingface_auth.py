@@ -67,6 +67,10 @@ class HuggingFaceAuthorizer(TokenAuthorizerBase):
         self.join_experiment()
         return self._local_access_token
 
+    @property
+    def username(self):
+        return self._local_access_token.username
+
     def join_experiment(self) -> None:
         call_with_retries(self._join_experiment)
 
@@ -169,9 +173,7 @@ def authorize_with_huggingface() -> HuggingFaceAuthorizer:
 
         try:
             authorizer.join_experiment()
-
-            username = authorizer._local_access_token.username
-            print(f"🚀 You will contribute to the collaborative training under the username {username}")
+            print(f"🚀 You will contribute to the collaborative training under the username {authorizer.username}")
             return authorizer
         except InvalidCredentialsError:
             print('Invalid user access token, please try again')
