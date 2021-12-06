@@ -10,3 +10,4 @@ nltk>=3.6.2
 sentencepiece
 aiohttp
 requests>=2.24.0
+termcolor
