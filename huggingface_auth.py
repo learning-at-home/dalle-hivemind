@@ -5,6 +5,7 @@ from getpass import getpass
 
 import requests
 from huggingface_hub import HfApi
+from termcolor import colored
 
 from hivemind.proto.auth_pb2 import AccessToken
 from hivemind.utils.auth import TokenAuthorizerBase
@@ -45,13 +46,12 @@ class NotInAllowlistError(NonRetriableError):
 class HuggingFaceAuthorizer(TokenAuthorizerBase):
     _AUTH_SERVER_URL = 'https://collaborative-training-auth.huggingface.co'
 
-    def __init__(self, organization_name: str, model_name: str, username: str, password: str):
+    def __init__(self, organization_name: str, model_name: str, hf_user_access_token: str):
         super().__init__()
 
         self.organization_name = organization_name
         self.model_name = model_name
-        self.username = username
-        self.password = password
+        self.hf_user_access_token = hf_user_access_token
 
         self._authority_public_key = None
         self.coordinator_ip = None
@@ -72,15 +72,8 @@ class HuggingFaceAuthorizer(TokenAuthorizerBase):
 
     def _join_experiment(self) -> None:
         try:
-            token = self._hf_api.login(self.username, self.password)
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 401:  # Unauthorized
-                raise InvalidCredentialsError()
-            raise
-
-        try:
             url = f'{self._AUTH_SERVER_URL}/api/experiments/join'
-            headers = {'Authorization': f'Bearer {token}'}
+            headers = {'Authorization': f'Bearer {self.hf_user_access_token}'}
             response = requests.put(
                 url,
                 headers=headers,
@@ -116,8 +109,6 @@ class HuggingFaceAuthorizer(TokenAuthorizerBase):
             if e.response.status_code == 401:  # Unauthorized
                 raise NotInAllowlistError()
             raise
-        finally:
-            self._hf_api.logout(token)
 
     def is_token_valid(self, access_token: AccessToken) -> bool:
         data = self._token_to_bytes(access_token)
@@ -161,24 +152,47 @@ def authorize_with_huggingface() -> HuggingFaceAuthorizer:
         if model_name is None:
             model_name = input('HuggingFace model name: ')
 
-        username = os.getenv('HF_USERNAME')
-        if username is None:
-            while True:
-                username = input('HuggingFace username: ')
-                if '@' not in username:
-                    break
-                print('Please enter your Huggingface _username_ instead of the email address!')
+        hf_user_access_token = os.getenv('HF_USER_ACCESS_TOKEN')
+        if hf_user_access_token is None:
+            msg = [
+                "Copy a token from your Hugging Face tokens page at ",
+                colored("https://huggingface.co/settings/token", attrs=['bold']),
+                "and paste it.\n💡",
+                colored("Pro Tip:", attrs=['bold']),
+                "If you don't already have one, you can create a dedicated user access token. Go to "
+                "https://huggingface.co/settings/token and click on the `new token` button. ",
+                "You just need to give a ",
+                colored("'read'", attrs=['bold']),
+                "role to this access token." ,
+                "Don't forget to give a now explicit new to this access token like for example",
+                colored(f"'{organization_name}-{model_name}-collaborative-training'", attrs=['bold'])
+                ]
+            print(*msg)
+            hf_user_access_token = getpass('HF user access token : ')
 
-        password = os.getenv('HF_PASSWORD')
-        if password is None:
-            password = getpass('HuggingFace password: ')
+            authorizer = HuggingFaceAuthorizer(organization_name, model_name, hf_user_access_token)
 
-        authorizer = HuggingFaceAuthorizer(organization_name, model_name, username, password)
         try:
             authorizer.join_experiment()
+
+            username = authorizer._local_access_token.username
+            print(f"🚀 You will contribute to the collaborative training under the username {username}.")
             return authorizer
         except InvalidCredentialsError:
-            print('Invalid username or password, please try again')
+            print('Invalid user access token, please try again')
         except NotInAllowlistError:
-            print('This account is not specified in the allowlist. '
-                  'Please ask a moderator to add you to the allowlist and try again')
+            print(
+                '😥 Authentication has failed. '
+                'This error may be due to the fact:\n',
+                "   1. your user access token is not valid. You can try to delete the previous token and"
+                " recreate one. Be careful, organization tokens can't be used to join a collaborative "
+                "training.\n"
+                f"   2. you have not yet joined the {organization_name} organization. You can request to"
+                " join this organization by clicking on the 'request to join this org' button at "
+                f"https://huggingface.co/{organization_name}.\n",
+                f"   3. the {organization_name} organization doesn't exist at https://huggingface.co/{organization_name}.\n",
+                f"   4. no {organization_name}'s admin has created a collaborative training for the {organization_name}"
+                f"organization and the {model_name} model.",
+                )
+    
+
