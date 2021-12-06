@@ -164,7 +164,7 @@ def authorize_with_huggingface() -> HuggingFaceAuthorizer:
                 "You just need to give a ",
                 colored("'read'", attrs=['bold']),
                 "role to this access token." ,
-                "Don't forget to give a now explicit new to this access token like for example",
+                "Don't forget to give an explicit name to this access token like",
                 colored(f"'{organization_name}-{model_name}-collaborative-training'", attrs=['bold'])
                 ]
             print(*msg)
