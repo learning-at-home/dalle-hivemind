@@ -86,7 +86,6 @@ class HuggingFaceAuthorizer(TokenAuthorizerBase):
                         'peer_public_key': self.local_public_key.to_bytes().decode(),
                     },
                 },
-                verify=False,  # FIXME: Update the expired API certificate
             )
 
             response.raise_for_status()
