@@ -1,9 +1,7 @@
-import base64
 import os
 import time
 from datetime import datetime, timedelta
 from getpass import getpass
-from urllib.parse import urlencode, urlunsplit
 
 import requests
 from huggingface_hub import HfApi
