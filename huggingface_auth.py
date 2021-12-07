@@ -169,7 +169,7 @@ def authorize_with_huggingface() -> HuggingFaceAuthorizer:
             )
             hf_user_access_token = getpass('🤗 Hugging Face user access token (characters will be hidden): ')
 
-            authorizer = HuggingFaceAuthorizer(organization_name, model_name, hf_user_access_token)
+        authorizer = HuggingFaceAuthorizer(organization_name, model_name, hf_user_access_token)
 
         try:
             authorizer.join_experiment()
