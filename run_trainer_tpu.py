@@ -40,7 +40,7 @@ def main():
     tpu_manager = TPUManager(model, dataset=task.training_dataset, collate_fn=task.data_collator,
                              grad_accumulation_steps=trainer_args.gradient_accumulation_steps,
                              batch_size_per_device=trainer_args.per_device_train_batch_size,
-                             nprocs=trainer_args.n_tpus, start=True)
+                             nprocs=trainer_args.num_tpus, start=True)
 
     model = task.model = tpu_manager._synchronizer.master_model
 
