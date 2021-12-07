@@ -67,7 +67,7 @@ class TrainingTask:
         if latest_checkpoint_dir is None:
             logger.info(f"Creating model")
 
-            depth = 16#TODO
+            depth = 64
             attn_types = list(islice(cycle(['axial_row', 'axial_col', 'axial_row', 'axial_row']), depth - 1))
             attn_types.append('conv_like')
             shared_layer_ids = list(islice(cycle(range(4)), depth - 1))
