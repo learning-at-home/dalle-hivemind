@@ -148,7 +148,7 @@ class AuxiliaryPeerArguments(BasePeerArguments):
         default=None, metadata={"help": "Name of Weights & Biases project to report the training progress to"}
     )
     save_checkpoint_step_interval: int = field(
-        default=5, metadata={"help": "Frequency (in steps) of fetching and saving state from peers"}
+        default=2, metadata={"help": "Frequency (in steps) of fetching and saving state from peers"}
     )
     repo_url: Optional[str] = field(
         default=None, metadata={"help": "URL of Hugging Face Hub repository to upload the model and optimizer states"}
@@ -159,7 +159,7 @@ class AuxiliaryPeerArguments(BasePeerArguments):
     upload_interval: Optional[float] = field(
         default=None, metadata={"help": "Frequency (in seconds) of uploading the model to Hub"}
     )
-    store_checkpoints: bool = field(default=False, metadata={"help": "If True, enables CheckpointHandler"})
+    store_checkpoints: bool = field(default=True, metadata={"help": "If True, enables CheckpointHandler"})
     assist_in_averaging: bool = field(
         default=False, metadata={"help": "If True, this peer will facilitate averaging for other (training) peers"})
     assist_refresh: float = field(default=1.0, metadata={"help": "Period (in seconds) for tryin to assist averaging"})
