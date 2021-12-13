@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import threading
 import time
 
 import torch
@@ -27,14 +26,14 @@ class CheckpointHandler:
         self.local_path = peer_args.local_path
         self.upload_interval = peer_args.upload_interval
         if self.upload_interval is not None:
-            self.token = HfFolder.get_token()
+            assert task.authorizer is not None, 'Model uploading needs Hugging Face auth to be enabled'
             self.repo = Repository(
                 local_dir=self.local_path,
                 clone_from=peer_args.repo_url,
-                use_auth_token=self.token,
+                use_auth_token=task.authorizer.hf_user_access_token,
             )
+            self.last_upload_time = None
         self.previous_step = -1
-        self.previous_timestamp = time.time()
 
     def should_save_state(self, cur_step):
         if self.save_checkpoint_step_interval is None:
@@ -52,17 +51,18 @@ class CheckpointHandler:
     def is_time_to_upload(self):
         if self.upload_interval is None:
             return False
-        elif time.time() - self.previous_timestamp >= self.upload_interval:
+        elif self.last_upload_time is None or time.time() - self.last_upload_time >= self.upload_interval:
             return True
         else:
             return False
 
     def upload_checkpoint(self, current_loss):
+        self.last_upload_time = time.time()
+
         logger.info("Saving model")
         torch.save(self.task.model.state_dict(), f"{self.local_path}/model_state.pt")
         logger.info("Saving optimizer")
         torch.save(self.task.collaborative_optimizer.state_dict(), f"{self.local_path}/optimizer_state.pt")
-        self.previous_timestamp = time.time()
         logger.info("Started uploading to Model Hub")
         try:
             # We start by pulling the remote changes (for example a change in the readme file)
@@ -71,11 +71,9 @@ class CheckpointHandler:
             # Then we add / commmit and push the changes
             self.repo.push_to_hub(commit_message=f"Epoch {self.task.collaborative_optimizer.local_epoch}, loss {current_loss:.3f}")
             logger.info("Finished uploading to Model Hub")
-        except OSError as e:
-            # There may be an error if a push arrives on the remote branch after the pull performed just above it. In
-            # this case the changes will be pushed with the next commit.
-            logger.error(f'The push to hub operation failed with error "{e}"')
-        
+        except Exception:
+            logger.exception("Uploading the checkpoint to HF Model Hub failed:")
+            logger.warning("Ensure that your access token is valid and has WRITE permissions")
 
 
 def assist_averaging_in_background(task: TrainingTask, peer_args: AuxiliaryPeerArguments):
