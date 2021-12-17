@@ -36,6 +36,8 @@ class HFTrainerArguments(TrainingArguments):
 
     output_dir: str = "outputs"
 
+    run_country: str = ""
+
     @property
     def batch_size_per_step(self):
         """Compute the number of training sequences contributed by each .step() from this peer"""
