@@ -1,5 +1,5 @@
-git+git://github.com/learning-at-home/hivemind@dalle-v1
-git+git://github.com/learning-at-home/dalle-pytorch@weight-sharing
+https://github.com/learning-at-home/hivemind/archive/dalle-v1.zip
+https://github.com/learning-at-home/dalle-pytorch/archive/weight-sharing.zip
 bitsandbytes-cuda111>=0.26.0
 transformers==4.12.2
 tokenizers>=0.10.2
