@@ -9,5 +9,5 @@ wandb>=0.10.33
 nltk>=3.6.2
 sentencepiece
 aiohttp
-requests>=2.24.0
+requests>=2.23.0
 termcolor
