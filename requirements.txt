@@ -1,7 +1,7 @@
 https://github.com/learning-at-home/hivemind/archive/dalle-v1.zip
 https://github.com/learning-at-home/dalle-pytorch/archive/weight-sharing.zip
 torchmetrics==0.6.2
-bitsandbytes-cuda111==0.26.0
+bitsandbytes-cuda111==0.26.0.post2
 transformers==4.12.2
 tokenizers==0.10.3
 datasets==1.14.0
